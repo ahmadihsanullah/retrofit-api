@@ -11,7 +11,8 @@ import belajar.android.kotlinapi.R
 import com.bumptech.glide.Glide
 
 class MainAdapter(
-    val results : ArrayList<MainModel.Result>
+    val results : ArrayList<MainModel.Result>,
+    val listener: OnAdapterListener
 ) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
     class ViewHolder(val view: View):RecyclerView.ViewHolder(view) {
         val text = view.findViewById<TextView>(R.id.textView)
@@ -33,6 +34,10 @@ class MainAdapter(
             .placeholder(R.drawable.ic_launcher_background)
             .error(R.drawable.ic_launcher_background)
             .into(holder.image)
+        //ketika itemnya di klik
+        holder.view.setOnClickListener{
+            listener.onClick(result)
+        }
     }
 
     override fun getItemCount(): Int = results.size
@@ -42,5 +47,9 @@ class MainAdapter(
         results.addAll(data)
 //        refresh recyclerviewnya
         notifyDataSetChanged()
+    }
+
+    interface OnAdapterListener{
+        fun onClick(result: MainModel.Result)
     }
 }
