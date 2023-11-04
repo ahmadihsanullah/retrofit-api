@@ -1,6 +1,7 @@
 package belajar.android.kotlinapi
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -39,7 +40,12 @@ class MainActivity : AppCompatActivity() {
     private fun setUpRecyclerView(){
         mainAdapter = MainAdapter(arrayListOf(), object : MainAdapter.OnAdapterListener{
             override fun onClick(result: MainModel.Result) {
-                Toast.makeText(applicationContext, result.title, Toast.LENGTH_SHORT).show()
+//                Toast.makeText(applicationContext, result.title, Toast.LENGTH_SHORT).show()
+                startActivity(
+                    Intent(this@MainActivity, DetailActivity2::class.java)
+                        .putExtra("intent_title", result.title)
+                        .putExtra("intent_image", result.image)
+                )
             }
 
         })
