@@ -5,6 +5,11 @@ import android.net.ConnectivityManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import belajar.android.kotlinapi.adapter.MainAdapter
 import belajar.android.kotlinapi.retrofit.ApiService
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,19 +19,32 @@ import java.net.UnknownServiceException
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+    lateinit var mainAdapter: MainAdapter
+    lateinit var recyclerView: RecyclerView
+    lateinit var progressBar: ProgressBar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("coba", "coba lagi")
+        recyclerView = findViewById(R.id.recyclerView)
+        progressBar = findViewById(R.id.progressBar)
     }
 
     override fun onStart() {
         super.onStart()
+        setUpRecyclerView()
         getDataFromApi()
     }
 
+    private fun setUpRecyclerView(){
+        mainAdapter = MainAdapter(arrayListOf())
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = mainAdapter
+        }
+    }
 
     private fun getDataFromApi(){
+        progressBar.visibility = View.VISIBLE
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
 
@@ -37,12 +55,14 @@ class MainActivity : AppCompatActivity() {
                         call: Call<MainModel>,
                         response: Response<MainModel>
                     ) {
+                        progressBar.visibility = View.GONE
                         if(response.isSuccessful){
                             showDatas(response.body()!!)
                         }
                     }
 
                     override fun onFailure(call: Call<MainModel>, t: Throwable) {
+                        progressBar.visibility = View.GONE
                         if (t is SocketTimeoutException) {
                             printLog("Connection Timeout: ${t.message}")
                         } else if (t is UnknownServiceException) {
@@ -60,16 +80,17 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     private fun printLog(message: String){
         Log.d(TAG, message)
     }
 
     private fun showDatas(data: MainModel){
         val results = data.result
-        for(result in results){
-                printLog("title: ${result.title}")
-        }
-        printLog("total ${data.result.size}")
+        mainAdapter.setData(results)
+//        for(result in results){
+//                printLog("title: ${result.title}")
+//        }
     }
 
 }
